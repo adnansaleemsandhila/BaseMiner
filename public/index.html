@@ -3,252 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asteroid Miner Tycoon Pro</title>
+    <title>Space Colony: Market & Physics Simulator</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
-        body { background: radial-gradient(circle, #0f1123 0%, #030305 100%); color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        body { background: radial-gradient(circle, #0d0e1a 0%, #020203 100%); color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 10px; }
         
-        .game-container { width: 100%; max-width: 480px; padding: 20px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(12px); box-shadow: 0 20px 60px rgba(0,0,0,0.6); margin: 10px; position: relative; }
-        h1 { font-size: 1.6rem; letter-spacing: 2px; color: #f39c12; text-shadow: 0 0 10px rgba(243, 156, 18, 0.3); margin-bottom: 15px; }
+        .game-container { width: 100%; max-width: 500px; padding: 25px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(12px); box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center; }
+        h1 { font-size: 1.5rem; color: #3498db; letter-spacing: 1px; margin-bottom: 5px; }
+        .subtitle { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 20px; }
         
-        .score-board { background: rgba(0, 0, 0, 0.5); padding: 12px; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(243, 156, 18, 0.2); position: relative; overflow: hidden; }
-        .score-label { font-size: 0.8rem; text-transform: uppercase; color: #888; letter-spacing: 1px; }
-        .score-value { font-size: 2.6rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.3); }
-        
-        /* Level Progress Bar */
-        .progress-container { width: 100%; background: #2c3e50; height: 8px; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22); transition: width 0.3s ease; }
+        /* Dashboard Layout */
+        .dashboard { display: grid; grid-template-columns: 1s 1s; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+        .stat-value { font-size: 1.4rem; font-weight: bold; color: #2ecc71; margin-top: 2px; }
 
-        /* Enhanced Animated Asteroid Arena */
-        .asteroid-wrapper { margin: 25px 0; display: flex; justify-content: center; position: relative; }
-        .asteroid { width: 190px; height: 190px; background: radial-gradient(circle, #9b59b6 10%, #34495e 100%); border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%; box-shadow: inset -15px -15px 40px rgba(0,0,0,0.8), 0 0 40px rgba(155, 89, 182, 0.4); cursor: pointer; transition: transform 0.05s ease; animation: float 5s ease-in-out infinite; position: relative; }
-        .asteroid:active { transform: scale(0.90) rotate(-3deg); }
-        
-        /* Critical Hit Glow Ring */
-        .crit-indicator { position: absolute; width: 210px; height: 210px; border: 3px dashed #e74c3c; border-radius: 50%; animation: spin 10s linear infinite; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-        .crit-ready { opacity: 0.7; }
+        /* Resource Cargo Bays */
+        .cargo-section { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+        .cargo-box { flex: 1; background: #161a2e; padding: 10px; border-radius: 12px; border-bottom: 3px solid #7f8c8d; }
+        .cargo-box.iron { border-color: #95a5a6; }
+        .cargo-box.platinum { border-color: #f1c40f; }
 
-        @keyframes float { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-8px) scale(1.02); } }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* The Interactive Market Ticker */
+        .market-ticker { background: #090a12; padding: 12px; border-radius: 14px; margin-bottom: 20px; border: 1px solid #e67e22; text-align: left; }
+        .ticker-header { font-size: 0.8rem; font-weight: bold; color: #e67e22; display: flex; justify-content: space-between; }
+        .market-grid { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9rem; }
+        .price-up { color: #2ecc71; }
+        .price-down { color: #e74c3c; }
 
-        /* Floating Damage/Gold Numbers */
-        .floating-num { position: absolute; font-weight: 900; font-size: 1.5rem; pointer-events: none; animation: floatUp 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 10; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.8); } 100% { opacity: 0; transform: translateY(-80px) scale(1.2); } }
+        /* Interactive Asteroid Canvas */
+        .mining-bay { margin: 20px 0; position: relative; display: flex; justify-content: center; }
+        .asteroid { width: 160px; height: 160px; background: radial-gradient(circle, #5d6d7e 20%, #2c3e50 100%); border-radius: 50% 40% 60% 40% / 40% 50% 40% 60%; cursor: pointer; transition: transform 0.05s; position: relative; box-shadow: inset -10px -10px 30px #000; }
+        .asteroid:active { transform: scale(0.95); }
 
-        /* Upgrade Shop Layout */
-        .shop-container { display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px; margin-top: 10px; }
-        .shop-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s; }
-        .shop-item:hover { background: rgba(255,255,255,0.08); }
-        .item-info { text-align: left; }
-        .item-title { font-weight: bold; font-size: 0.95rem; color: #ecf0f1; }
-        .item-desc { font-size: 0.75rem; color: #888; }
-        .btn-buy { background: #27ae60; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
-        .btn-buy:disabled { background: #7f8c8d; opacity: 0.3; cursor: not-allowed; }
+        .btn-action { width: 100%; background: #3498db; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-bottom: 10px; transition: all 0.2s; }
+        .btn-action:hover { background: #2980b9; }
+        .btn-sell { background: #e67e22; }
+        .btn-sell:hover { background: #d35400; }
+        .btn-sell:disabled { background: #34495e; cursor: not-allowed; opacity: 0.5; }
 
-        .stats-bar { display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.85rem; color: #888; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
-        
-        /* Auth Overlay styling */
-        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080911; display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .auth-box { background: #141627; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; border: 1px solid rgba(255,255,255,0.1); }
-        .auth-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2c3e50; background: #1c1f35; color: white; margin: 15px 0; text-align: center; font-size: 1rem; }
-        .auth-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #f39c12; color: black; font-weight: bold; cursor: pointer; }
+        /* Educational Toolkit Info Module */
+        .edu-box { background: rgba(52, 152, 219, 0.05); border: 1px solid rgba(52, 152, 219, 0.2); padding: 12px; border-radius: 14px; font-size: 0.8rem; line-height: 1.4; color: #aec6cf; text-align: left; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-box">
-            <h3 style="color: #f39c12;">Asteroid Miner Core</h3>
-            <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Pilot Call-Sign" maxlength="15">
-            <button class="auth-btn" onclick="authenticateUser()">Engage Thrusters</button>
-        </div>
-    </div>
+    <div class="game-container">
+        <h1>Cosmic Economy Simulator</h1>
+        <div class="subtitle">Apply Economics & Planetary Science to Survive</div>
 
-    <div class="game-container" id="gameContainer">
-        <h1 id="playerDisplay">Sector Operations</h1>
-        
-        <div class="score-board">
-            <div class="score-label">Cargo Hold (Gold)</div>
-            <div class="score-value" id="goldDisplay">0</div>
-        </div>
-
-        <div class="score-label" id="levelDisplay" style="text-align: left; margin-bottom: 4px;">Rank 1: Space Recruit</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <div class="asteroid-wrapper">
-            <div class="crit-indicator" id="critRing"></div>
-            <div class="asteroid" id="asteroidNode"></div>
-        </div>
-
-        <div class="score-label" style="text-align: left; margin-bottom: 5px;">Fleet Upgrades</div>
-        <div class="shop-container">
-            <div class="shop-item">
-                <div class="item-info">
-                    <div class="item-title">Auto-Drone</div>
-                    <div class="item-desc" id="droneDesc">+1 Gold/sec</div>
-                </div>
-                <button class="btn-buy" id="buyDroneBtn" onclick="buyUpgrade('drone')">Buy (15)</button>
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-label">Colony Budget</div>
+                <div class="stat-value" id="cashDisplay">$100</div>
             </div>
-            <div class="shop-item">
-                <div class="item-info">
-                    <div class="item-title">Heavy Frigate</div>
-                    <div class="item-desc" id="frigateDesc">+8 Gold/sec</div>
-                </div>
-                <button class="btn-buy" id="buyFrigateBtn" onclick="buyUpgrade('frigate')">Buy (100)</button>
+            <div class="stat-card">
+                <div class="stat-label">Power Grid Load</div>
+                <div class="stat-value" id="powerDisplay" style="color: #f1c40f;">0 / 50 W</div>
             </div>
         </div>
 
-        <div class="stats-bar">
-            <span id="gpsDisplay">0 / sec</span>
-            <span id="rankDisplay">Recruit</span>
+        <div class="market-ticker">
+            <div class="ticker-header">
+                <span>GLOBAL COMMODITY EXCHANGE</span>
+                <span style="font-size: 0.7rem; color: #888;" id="tickerTimer">Updating in 5s</span>
+            </div>
+            <div class="market-grid">
+                <div>Iron: <span id="ironPriceDisplay">$2</span>/kg</div>
+                <div>Platinum: <span id="platPriceDisplay">$15</span>/kg</div>
+            </div>
+        </div>
+
+        <div class="cargo-section">
+            <div class="cargo-box iron">
+                <div class="stat-label">Iron Ore (Fe)</div>
+                <div class="stat-value" id="ironCargo" style="color: #bdc3c7;">0 kg</div>
+            </div>
+            <div class="cargo-box platinum">
+                <div class="stat-label">Platinum (Pt)</div>
+                <div class="stat-value" id="platCargo" style="color: #f1c40f;">0 kg</div>
+            </div>
+        </div>
+
+        <div class="mining-bay">
+            <div class="asteroid" onclick="mineAsteroid()"></div>
+        </div>
+
+        <button class="btn-action btn-sell" id="sellBtn" onclick="sellResources()" disabled>Liquidate Cargo Assets</button>
+        <button class="btn-action" style="background: #27ae60;" onclick="buySolarPanel()">Deploy Solar Infrastructure (+25W Power) | Cost: $50</button>
+
+        <div class="edu-box" id="eduBox">
+            <strong>🎓 Commander's Lesson:</strong> Asteroids are rich in minerals. Common M-type asteroids hold dense reserves of Iron (Fe), while rare composition states yield heavy Platinum-group precious elements. Watch the market dynamics—selling too fast creates an asset oversupply, driving values down!
         </div>
     </div>
 
     <script>
-        let currentUser = "";
-        let localGold = 0;
-        let localGps = 0;
-        let critActive = false;
-        const API_BASE = window.location.origin;
+        // System variables
+        let cash = 100;
+        let ironOre = 0;
+        let platinumOre = 0;
+        
+        let ironPrice = 2;
+        let platinumPrice = 15;
+        let marketTimer = 5;
 
-        // UI Binding Objects
-        const asteroid = document.getElementById('asteroidNode');
-        const critRing = document.getElementById('critRing');
-        const goldDisplay = document.getElementById('goldDisplay');
-        const progressBar = document.getElementById('progressBar');
-        const levelDisplay = document.getElementById('levelDisplay');
+        let powerSupplied = 0;
+        let powerMax = 50;
 
-        // Setup Event Listeners for Juicy Interaction
-        asteroid.addEventListener('mousedown', (e) => spawnFloatingNumber(e));
+        // Visual Target Bindings
+        const cashDisplay = document.getElementById('cashDisplay');
+        const ironCargo = document.getElementById('ironCargo');
+        const platCargo = document.getElementById('platCargo');
+        const ironPriceDisplay = document.getElementById('ironPriceDisplay');
+        const platPriceDisplay = document.getElementById('platPriceDisplay');
+        const tickerTimer = document.getElementById('tickerTimer');
+        const sellBtn = document.getElementById('sellBtn');
+        const eduBox = document.getElementById('eduBox');
+        const powerDisplay = document.getElementById('powerDisplay');
 
-        async function authenticateUser() {
-            const name = document.getElementById('usernameInput').value.trim();
-            if(!name) return alert("Call-Sign required.");
-            currentUser = name;
-            document.getElementById('playerDisplay').innerText = `Pilot: ${currentUser}`;
+        const eduLessons = [
+            "Supply and Demand: If your hold gets full and you dump everything at once, market saturation causes prices to crash.",
+            "Planetary Exploration: Heavy industrial metals like Iron (Fe) are structural cornerstones used for expanding planetary colony outposts.",
+            "Energy Management: You cannot scale automated operations without balancing your power grid. Solar panels generate continuous wattage.",
+            "Inflation Dynamics: Holding raw capital ($ Cash) while resource values spike lowers your real spending power. Balance cash assets with materials!"
+        ];
 
-            const res = await fetch(`${API_BASE}/api/auth`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: currentUser })
-            });
-            const data = await res.json();
-            document.getElementById('authOverlay').style.display = 'none';
-            
-            // Map legacy variables to server data structure
-            localGold = data.gold;
-            localGps = data.autoMiners * 1; 
-            
-            updateUI(data);
-            startGameLoops();
-        }
-
-        async function registerClick() {
-            let isCrit = false;
-            if(critActive) {
-                isCrit = true;
-                critActive = false;
-                critRing.classList.remove('crit-ready');
-            }
-
-            const res = await fetch(`${API_BASE}/api/click`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: currentUser, isCritical: isCrit })
-            });
-            const data = await res.json();
-            localGold = data.gold;
-            updateUI(data);
-        }
-
-        // Connect Client Clicks directly to async API execution
-        asteroid.addEventListener('click', registerClick);
-
-        async function buyUpgrade(type) {
-            const res = await fetch(`${API_BASE}/api/upgrade`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: currentUser, upgradeType: type })
-            });
-            const data = await res.json();
-            localGold = data.gold;
-            updateUI(data);
-        }
-
-        function updateUI(data) {
-            goldDisplay.innerText = Math.floor(localGold).toLocaleString();
-            
-            // Dynamically evaluate scaling ranks based on profile metrics
-            let progressToNextRank = (localGold % 100);
-            progressBar.style.width = `${progressToNextRank}%`;
-            
-            let levelVal = Math.floor(localGold / 100) + 1;
-            levelDisplay.innerText = `Rank ${levelVal}: ${levelVal > 5 ? 'Galaxy Overseer' : 'Elite Prospector'}`;
-            
-            // Evaluate standard upgrade loops
-            const droneCost = Math.floor(15 * Math.pow(1.15, data.autoMiners || 0));
-            document.getElementById('buyDroneBtn').innerText = `Buy (${droneCost})`;
-            document.getElementById('buyDroneBtn').disabled = localGold < droneCost;
-            document.getElementById('droneDesc').innerText = `Owned: ${data.autoMiners || 0} (+${(data.autoMiners || 0)*1}/s)`;
-
-            const frigateCost = Math.floor(100 * Math.pow(1.25, data.heavyFrigates || 0));
-            document.getElementById('buyFrigateBtn').innerText = `Buy (${frigateCost})`;
-            document.getElementById('buyFrigateBtn').disabled = localGold < frigateCost;
-            document.getElementById('frigateDesc').innerText = `Owned: ${data.heavyFrigates || 0} (+${(data.heavyFrigates || 0)*8}/s)`;
-
-            localGps = ((data.autoMiners || 0) * 1) + ((data.heavyFrigates || 0) * 8);
-            document.getElementById('gpsDisplay').innerText = `${localGps} Gold / sec`;
-        }
-
-        function spawnFloatingNumber(e) {
-            const num = document.createElement('div');
-            num.classList.add('floating-num');
-            
-            if(critActive) {
-                num.innerText = '+5 GOLD!!';
-                num.style.color = '#e74c3c';
-                num.style.fontSize = '2rem';
-                // Trigger container shake effect
-                document.getElementById('gameContainer').style.transform = 'translate(2px, 2px) rotate(1deg)';
-                setTimeout(() => document.getElementById('gameContainer').style.transform = 'none', 100);
+        function mineAsteroid() {
+            // Science probability matrix: Iron is common (85%), Platinum is rare (15%)
+            if (Math.random() > 0.15) {
+                ironOre += 1;
+                ironCargo.innerText = `${ironOre} kg`;
             } else {
-                num.innerText = '+1';
-                num.style.color = '#f1c40f';
+                platinumOre += 1;
+                platCargo.innerText = `${platinumOre} kg`;
             }
-
-            // Calculate precise viewport positions relative to element box coordinates
-            const rect = asteroid.getBoundingClientRect();
-            num.style.left = `${e.clientX - rect.left + 40}px`;
-            num.style.top = `${e.clientY - rect.top + 40}px`;
-
-            asteroid.appendChild(num);
-            setTimeout(() => num.remove(), 800);
+            evaluateTradeSolvency();
         }
 
-        function startGameLoops() {
-            // 1. Idle Income Accumulation Generator
-            setInterval(() => {
-                if (localGps > 0) {
-                    localGold += localGps;
-                    goldDisplay.innerText = Math.floor(localGold).toLocaleString();
-                }
-            }, 1000);
+        function sellResources() {
+            if(ironOre === 0 && platinumOre === 0) return;
 
-            // 2. Random Critical Strike Alert Engine (Randomly pops up actions for the player)
-            setInterval(() => {
-                if(Math.random() > 0.6 && !critActive) {
-                    critActive = true;
-                    critRing.classList.add('crit-ready');
-                    // Automatically turn off crit ring after 3 seconds if player misses it
-                    setTimeout(() => {
-                        critActive = false;
-                        critRing.classList.remove('crit-ready');
-                    }, 3000);
-                }
-            }, 4000);
+            let grossEarnings = (ironOre * ironPrice) + (platinumOre * platinumPrice);
+            cash += grossEarnings;
+            
+            // Educational Economic Penalty: Mass sales cause a slight immediate local market deflation cascade
+            if(ironOre > 5) ironPrice = Math.max(1, ironPrice - 1);
+            if(platinumOre > 2) platinumPrice = Math.max(5, platinumPrice - 3);
+
+            ironOre = 0;
+            platinumOre = 0;
+
+            ironCargo.innerText = `0 kg`;
+            platCargo.innerText = `0 kg`;
+            cashDisplay.innerText = `$${cash}`;
+            
+            updateMarketUIColors();
+            evaluateTradeSolvency();
+            cycleLessons();
         }
+
+        function buySolarPanel() {
+            if (cash >= 50) {
+                cash -= 50;
+                powerMax += 25;
+                cashDisplay.innerText = `$${cash}`;
+                powerDisplay.innerText = `${powerSupplied} / ${powerMax} W`;
+                evaluateTradeSolvency();
+                eduBox.innerHTML = "<strong>🎓 Infrastructure Success:</strong> You upgraded the electrical grid! Your colony can now support more heavy, automatic mining tools.";
+            } else {
+                alert("Insufficient capital to purchase solar arrays.");
+            }
+        }
+
+        function evaluateTradeSolvency() {
+            sellBtn.disabled = (ironOre === 0 && platinumOre === 0);
+        }
+
+        function updateMarketUIColors() {
+            ironPriceDisplay.innerText = `$${ironPrice}`;
+            platPriceDisplay.innerText = `$${platinumPrice}`;
+        }
+
+        function cycleLessons() {
+            const randomLesson = eduLessons[Math.floor(Math.random() * eduLessons.length)];
+            eduBox.innerHTML = `<strong>🎓 Financial Lesson:</strong> ${randomLesson}`;
+        }
+
+        // The Real-Time Simulated Economy Engine
+        setInterval(() => {
+            marketTimer--;
+            tickerTimer.innerText = `Updating in ${marketTimer}s`;
+
+            if(marketTimer <= 0) {
+                marketTimer = 5;
+                
+                // Simulate market volatility using standard random walk percentages
+                const ironDelta = Math.random() > 0.5 ? 1 : -1;
+                const platDelta = Math.random() > 0.5 ? 2 : -2;
+
+                // Enforce safety baselines
+                ironPrice = Math.max(1, Math.min(10, ironPrice + ironDelta));
+                platinumPrice = Math.max(5, Math.min(40, platinumPrice + platDelta));
+
+                // Style price shifts to give immediate visual indicators
+                ironPriceDisplay.className = ironDelta > 0 ? 'price-up' : 'price-down';
+                platPriceDisplay.className = platDelta > 0 ? 'price-up' : 'price-down';
+
+                updateMarketUIColors();
+            }
+        }, 1000);
     </script>
 </body>
 </html>

@@ -66,12 +66,15 @@ app.post('/api/auth', (req, res) => {
 
 // 2. Anti-Cheat Score Click Router
 app.post('/api/click', (req, res) => {
-    const { username } = req.body;
+    const { username, surgeActive } = req.body;
     
     db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
         if (err || !row) return res.status(404).json({ error: "Player profile not found" });
 
-        const reward = 1 * row.multiplier;
+        // If the client side verified a system surge event, double the payout curve
+        const baseReward = 1 * row.multiplier;
+        const reward = surgeActive ? (baseReward * 2) : baseReward;
+        
         const newCoins = row.coins + reward;
         const now = Date.now();
 

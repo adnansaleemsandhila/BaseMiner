@@ -1,0 +1,10 @@
+# Ignore the active SQLite database file on production
+game.db
+game.db-journal
+
+# Ignore local node modules (Hostinger installs these fresh on the server)
+node_modules/
+
+# Ignore local system hidden files
+.DS_Store
+Thumbs.db

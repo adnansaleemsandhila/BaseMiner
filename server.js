@@ -11,10 +11,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect or generate persistent SQLite DB
+// Auto-generates game.db locally on the server if missing
 const db = new sqlite3.Database(DB_FILE, (err) => {
-    if (err) console.error("DB Initialization Failure:", err);
-    else console.log("SQLite Engine Active & Tracking Cockroach Records.");
+    if (err) console.error("Database initialization error:", err);
+    else console.log("SQLite secure data registry online.");
 });
 
 // Structural layout for the production ledger (Keyed by Real Wallet Address)
@@ -28,12 +28,11 @@ db.serialize(() => {
     )`);
 });
 
-// Memory cache to watch bot throttling speed spikes
 const rateLimiterCache = {};
 
 // ---------------- API ENDPOINTS ----------------
 
-// 1. Identity Mapping (Triggered when user finishes Real or Mock Social SSO)
+// 1. Identity Mapping
 app.post('/api/auth', (req, res) => {
     const { walletAddress, socialHandle } = req.body;
     if (!walletAddress) return res.status(400).json({ error: "Cryptographic Address required." });
@@ -45,7 +44,6 @@ app.post('/api/auth', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
 
         if (!row) {
-            // Fresh registration: Link their wallet to database state
             db.run("INSERT INTO rebels (wallet_address, social_handle, virtual_points, multiplier, last_click_time) VALUES (?, ?, 0, 1, ?)",
                 [cleanWallet, handle, Date.now()], function(err) {
                     if (err) return res.status(500).json({ error: err.message });
@@ -65,7 +63,7 @@ app.post('/api/click', (req, res) => {
     const cleanWallet = walletAddress.toLowerCase();
     const now = Date.now();
 
-    // ---- ADVANCED BOT THROTTLING ENGINE ----
+    // ---- BOT THROTTLING ENGINE ----
     if (!rateLimiterCache[cleanWallet]) {
         rateLimiterCache[cleanWallet] = { lastClick: now, strikes: 0 };
     }
@@ -129,5 +127,5 @@ app.get('/api/leaderboard', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Secured Cockroach Engine standing live on port ${PORT}`);
+    console.log(`Secured Network Engine active on port ${PORT}`);
 });

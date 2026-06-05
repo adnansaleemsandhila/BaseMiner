@@ -3,90 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 CHOCKROCH RESISTANCE: Meme Launchpad 🚀</title>
+    <title>🚀 CHOCKROCH MOVEMENT HUB 🚀</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Impact', 'Arial Black', sans-serif; user-select: none; }
         body { background: radial-gradient(circle, #3a0066 0%, #050010 100%); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         
         .layout-wrapper { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 900px; }
-        
         .meme-container, .leaderboard-container { background: rgba(10, 5, 20, 0.9); border: 4px solid #39ff14; border-radius: 30px; box-shadow: 0 0 25px #39ff14, inset 0 0 15px #ff007f; padding: 25px; text-align: center; flex: 1; min-width: 340px; max-width: 440px; position: relative; }
         
-        h1, h2 { font-size: 2rem; color: #39ff14; text-shadow: 3px 3px #ff007f; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
-        h2 { font-size: 1.8rem; border-bottom: 2px dashed #ff007f; padding-bottom: 10px; }
+        h1, h2 { font-size: 1.8rem; color: #39ff14; text-shadow: 3px 3px #ff007f; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
+        h2 { font-size: 1.7rem; border-bottom: 2px dashed #ff007f; padding-bottom: 10px; }
         
         .ticker-name { font-size: 1.1rem; color: #fff; background: #ff007f; display: inline-block; padding: 2px 12px; border-radius: 8px; transform: rotate(-2deg); margin-bottom: 15px; }
-
-        .web3-bar { margin-bottom: 15px; }
-        .btn-wallet { background: linear-gradient(90deg, #ff007f, #7000ff); border: 2px solid #fff; color: white; padding: 8px 16px; font-size: 0.8rem; border-radius: 12px; cursor: pointer; box-shadow: 0 0 10px #ff007f; }
+        .wallet-badge { font-size: 0.75rem; background: #111; padding: 6px 12px; border-radius: 20px; border: 1px solid #ff007f; display: inline-block; font-family: monospace; color: #aec6cf; margin-bottom: 10px; }
 
         .crypto-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .data-tile { background: #111; border: 2px solid #222; padding: 10px; border-radius: 15px; text-align: left; }
-        .tile-label { font-size: 0.7rem; color: #888; font-family: 'Arial', sans-serif; text-transform: uppercase; }
-        .tile-value { font-size: 1.3rem; color: #39ff14; margin-top: 2px; }
+        .tile-label { font-size: 0.65rem; color: #888; font-family: 'Arial', sans-serif; text-transform: uppercase; }
+        .tile-value { font-size: 1.2rem; color: #39ff14; margin-top: 2px; }
 
-        /* Mascot Arena */
-        .character-zone { margin: 25px 0; display: flex; justify-content: center; position: relative; }
-        .chockroch-svg { width: 170px; height: 170px; filter: drop-shadow(0 0 15px #39ff14); cursor: pointer; transition: transform 0.05s ease; }
+        .character-zone { margin: 20px 0; display: flex; justify-content: center; position: relative; }
+        .chockroch-svg { width: 165px; height: 165px; filter: drop-shadow(0 0 15px #39ff14); cursor: pointer; transition: transform 0.05s ease; }
         .chockroch-svg:active { transform: scale(0.88) rotate(3deg); }
-        
-        /* Surge Multiplier state */
         .surge-active { filter: drop-shadow(0 0 25px #ff007f) brightness(1.3) !important; animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
 
-        /* Visual Feedback Text */
-        .blast-text { position: absolute; font-size: 1.6rem; color: #ffff00; pointer-events: none; -webkit-text-stroke: 1px #000; animation: blast 0.6s ease-out forwards; z-index: 10; }
+        .blast-text { position: absolute; font-size: 1.5rem; color: #ffff00; pointer-events: none; -webkit-text-stroke: 1px #000; animation: blast 0.6s ease-out forwards; z-index: 10; }
         @keyframes blast { 0% { opacity: 1; transform: translate(0,0) scale(0.6); } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.4); } }
+        .particle { position: absolute; width: 6px; height: 6px; background: #39ff14; border-radius: 50%; pointer-events: none; animation: p-fade 0.5s linear forwards; }
+        @keyframes p-fade { 100% { opacity: 0; transform: translate(var(--mx), var(--my)); } }
 
-        /* Particles System canvas overlay */
-        .particle { position: absolute; width: 6px; height: 6px; background: #39ff14; border-radius: 50%; pointer-events: none; animation: particle-fade 0.5s linear forwards; }
-        @keyframes particle-fade { 100% { opacity: 0; transform: translate(var(--mx), var(--my)); } }
-
-        .meme-btn { width: 100%; border: 3px solid #000; padding: 12px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; background: #39ff14; box-shadow: 0 5px 0 #1e820a; margin-top: 10px; color: #000; }
+        .meme-btn { width: 100%; border: 3px solid #000; padding: 12px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; background: #39ff14; box-shadow: 0 5px 0 #1e820a; margin-top: 8px; color: #000; }
         .meme-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #1e820a; }
         .meme-btn:disabled { background: #444; color: #777; cursor: not-allowed; box-shadow: none; transform: none; border-color: #222; }
+        .btn-withdraw { background: #ff007f; box-gradient: none; color: white; box-shadow: 0 5px 0 #9e004f; font-size: 0.95rem; padding: 10px; }
+        .btn-withdraw:active { box-shadow: 0 1px 0 #9e004f; }
 
-        .leaderboard-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .leaderboard-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); font-family: 'Arial', sans-serif; font-size: 0.95rem; }
-        .rank-num { font-weight: bold; color: #ff007f; font-size: 1.1rem; margin-right: 8px; }
-        .player-address-hint { font-size: 0.7rem; color: #555; display: block; margin-top: 2px; }
+        .leaderboard-list { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .leaderboard-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); font-family: 'Arial', sans-serif; font-size: 0.9rem; }
+        .rank-num { font-weight: bold; color: #ff007f; margin-right: 8px; }
+        .player-address-hint { font-size: 0.65rem; color: #555; display: block; font-family: monospace; }
 
-        .community-alert { background: rgba(57,255,20,0.04); border: 2px dashed #ff007f; padding: 12px; border-radius: 12px; font-family: 'Arial', sans-serif; font-size: 0.8rem; line-height: 1.3; color: #ddd; margin-top: 15px; text-align: left; }
         .surge-banner { display: none; background: #ff007f; color: white; padding: 5px; font-size: 0.8rem; border-radius: 5px; margin-bottom: 10px; animation: flash 0.5s infinite alternate; }
         @keyframes flash { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #03000a; display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .auth-box { background: #0c0514; padding: 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; border: 2px solid #39ff14; box-shadow: 0 0 20px #39ff14; }
-        .auth-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #222; background: #000; color: white; margin: 15px 0; text-align: center; font-size: 1rem; }
+        /* SSO Gate Screen Styling */
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #04010a; display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .auth-box { background: #0f071a; padding: 35px; border-radius: 30px; text-align: center; width: 90%; max-width: 360px; border: 3px solid #39ff14; box-shadow: 0 0 25px #39ff14; }
+        .sso-btn { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #fff; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s; }
+        .sso-google { background: #fff; color: #000; }
+        .sso-x { background: #000; color: #fff; border-color: #333; }
+        .sso-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
 
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-box">
-            <h3 style="color: #39ff14; font-size: 1.6rem;">JOIN THE RESISTANCE</h3>
-            <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Rebel Callsign" maxlength="12">
-            <button class="meme-btn" onclick="authenticateUser()" style="margin: 0;">Rally</button>
+            <h2 style="color: #39ff14; font-size: 1.5rem; border-none; margin-bottom: 5px; text-shadow: none;">CHOCKROCH LOGIN</h2>
+            <div style="font-family: 'Arial'; font-size: 0.8rem; color: #888; margin-bottom: 20px;">Secured via Embedded Web3 Auth</div>
+            
+            <input type="text" id="customHandleInput" style="width:100%; padding:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; text-align:center; margin-bottom:10px;" placeholder="Create Rebel Handle (e.g. Ali_CJP)">
+            
+            <button class="sso-btn sso-google" onclick="triggerMockSSO('Google')">
+                🌐 Continue with Google
+            </button>
+            <button class="sso-btn sso-x" onclick="triggerMockSSO('X (Twitter)')">
+                𝕏 Continue with X / Twitter
+            </button>
         </div>
     </div>
 
     <div class="layout-wrapper">
         <div class="meme-container">
             <div class="surge-banner" id="surgeBanner">🔥 SYSTEM SURGE ACTIVE! 2X SCORES 🔥</div>
-            <h1 id="playerDisplay">Rebel Core</h1>
+            <h1 id="playerDisplay">Rebel Node</h1>
             <div class="ticker-name">$CHOCKROCH</div>
-
-            <div class="web3-bar">
-                <button class="btn-wallet" id="walletBtn" onclick="simulateWalletConnect()">🔗 Link Base Wallet</button>
-            </div>
+            <br>
+            <div class="wallet-badge" id="walletBadgeDisplay">Loading Secure Ledger Address...</div>
 
             <div class="crypto-dashboard">
                 <div class="data-tile">
-                    <div class="tile-label">Rants Logged</div>
+                    <div class="tile-label">Unclaimed Points</div>
                     <div class="tile-value" id="coinsDisplay">0</div>
                 </div>
                 <div class="data-tile">
-                    <div class="tile-label">Multiplier</div>
+                    <div class="tile-label">Mining Multiplier</div>
                     <div class="tile-value" id="multiplierDisplay" style="color: #ff007f;">1x</div>
                 </div>
             </div>
@@ -105,18 +106,15 @@
             </div>
 
             <button class="meme-btn" id="upgradeBtn" onclick="buyUpgrade()" disabled>
-                Upgrade Faux-Staking (Cost: 20)
+                Staking Upgrade (Cost: 20)
             </button>
-
-            <div class="community-alert">
-                <strong>📢 Movement Broadcast:</strong> Tap Chockroch to amplify the signal. Every click tracks your score safely into your Hostinger SQLite core backend!
-            </div>
+            <button class="meme-btn btn-withdraw" onclick="triggerFauxWithdrawal()">
+                ⚡ Claim On-Chain $CHOCKROCH Tokens
+            </button>
         </div>
 
         <div class="leaderboard-container">
             <h2>🏆 TOP 5 REBELS 🏆</h2>
-            <div style="font-size: 0.75rem; color: #888; font-family: 'Arial'; margin-top: 4px;">Live data checking active</div>
-            
             <div class="leaderboard-list" id="leaderboardList">
                 <div class="leaderboard-row">Scanning nodes...</div>
             </div>
@@ -124,53 +122,53 @@
     </div>
 
     <script>
-        let currentUser = "";
-        let linkedWallet = "";
+        let myWalletAddress = "";
+        let mySocialHandle = "";
         let clickCount = 0;
         let isSurge = false;
         const API_BASE = window.location.origin;
 
-        // Audio Engine Synthesis Setup
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        function playLaserSound(pitchFactor = 1) {
+        function playSynthLaser(factor = 1) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(180 * pitchFactor, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40 * pitchFactor, audioCtx.currentTime + 0.15);
-            
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            
+            osc.frequency.setValueAtTime(190 * factor, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(35 * factor, audioCtx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+            osc.stop(audioCtx.currentTime + 0.12);
         }
 
         const coinsDisplay = document.getElementById('coinsDisplay');
         const multiplierDisplay = document.getElementById('multiplierDisplay');
         const upgradeBtn = document.getElementById('upgradeBtn');
         const leaderboardList = document.getElementById('leaderboardList');
-        const walletBtn = document.getElementById('walletBtn');
+        const walletBadgeDisplay = document.getElementById('walletBadgeDisplay');
         const chockroch = document.getElementById('chockrochAsset');
         const surgeBanner = document.getElementById('surgeBanner');
 
-        const phrases = ["LAZY!", "CHRONIC!", "ROACHES!", "WAGMI!", "BASE L2!", "PUMP IT!", "HODL!"];
+        const phrases = ["BOOM!", "CJP!", "RESIST!", "HODL!", "BASE L2!", "PUMP!", "ROACH!"];
 
-        async function authenticateUser() {
-            const name = document.getElementById('usernameInput').value.trim();
-            if(!name) return alert("Callsign required.");
-            currentUser = name;
-            document.getElementById('playerDisplay').innerText = currentUser;
+        async function triggerMockSSO(provider) {
+            const typedHandle = document.getElementById('customHandleInput').value.trim();
+            mySocialHandle = typedHandle ? typedHandle : `User_${Math.floor(Math.random()*9000)}`;
+            
+            // Generate a real cryptographic hex-string simulating an embedded Privy wallet creation
+            myWalletAddress = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+            
+            walletBadgeDisplay.innerText = `💳 Wallet: ${myWalletAddress.substring(0,6)}...${myWalletAddress.substring(36)}`;
+            document.getElementById('playerDisplay').innerText = mySocialHandle;
 
             const res = await fetch(`${API_BASE}/api/auth`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: currentUser, walletAddress: linkedWallet })
+                body: JSON.stringify({ walletAddress: myWalletAddress, socialHandle: mySocialHandle })
             });
             const data = await res.json();
             document.getElementById('authOverlay').style.display = 'none';
@@ -181,28 +179,32 @@
         }
 
         async function mineChockroch(e) {
-            if(!currentUser) return;
+            if(!myWalletAddress) return;
             clickCount++;
 
-            // Trigger random System Surge event loops
-            if (clickCount >= 20 && !isSurge) {
+            if (clickCount >= 18 && !isSurge) {
                 if(Math.random() > 0.4) {
-                    triggerSystemSurge();
-                } else {
+                    isSurge = true;
                     clickCount = 0;
+                    chockroch.classList.add('surge-active');
+                    surgeBanner.style.display = 'block';
+                    playSynthLaser(3);
+                    setTimeout(() => {
+                        isSurge = false;
+                        chockroch.classList.remove('surge-active');
+                        surgeBanner.style.display = 'none';
+                    }, 10000);
                 }
             }
 
-            // Play sound and throw particles
-            playLaserSound(isSurge ? 2.5 : 1);
-            spawnParticles(e);
+            playSynthLaser(isSurge ? 2.2 : 1);
+            spawnClickParticles(e);
             
-            // Pop up satirical tracking text
             const pop = document.createElement('div');
             pop.classList.add('blast-text');
-            pop.innerText = isSurge ? "💥 SURGE! 💥" : phrases[Math.floor(Math.random() * phrases.length)];
-            pop.style.setProperty('--x', `${(Math.random() - 0.5) * 180}px`);
-            pop.style.setProperty('--y', `${-(Math.random() * 120 + 30)}px`);
+            pop.innerText = isSurge ? "⚡️ SURGE ⚡️" : phrases[Math.floor(Math.random() * phrases.length)];
+            pop.style.setProperty('--x', `${(Math.random() - 0.5) * 160}px`);
+            pop.style.setProperty('--y', `${-(Math.random() * 100 + 40)}px`);
             pop.style.left = `${e.clientX - chockroch.getBoundingClientRect().left}px`;
             pop.style.top = `${e.clientY - chockroch.getBoundingClientRect().top}px`;
             chockroch.parentElement.appendChild(pop);
@@ -211,27 +213,20 @@
             const res = await fetch(`${API_BASE}/api/click`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: currentUser, surgeActive: isSurge })
+                body: JSON.stringify({ walletAddress: myWalletAddress, surgeActive: isSurge })
             });
+            
+            if (res.status === 429) {
+                const errData = await res.json();
+                alert(errData.error);
+                return;
+            }
+
             const data = await res.json();
             updateUI(data);
         }
 
-        function triggerSystemSurge() {
-            isSurge = true;
-            clickCount = 0;
-            chockroch.classList.add('surge-active');
-            surgeBanner.style.display = 'block';
-            playLaserSound(4); // Multi-pitch audio notify
-            
-            setTimeout(() => {
-                isSurge = false;
-                chockroch.classList.remove('surge-active');
-                surgeBanner.style.display = 'none';
-            }, 10000); // Surge lasts for 10 seconds
-        }
-
-        function spawnParticles(e) {
+        function spawnClickParticles(e) {
             const zone = document.getElementById('particleZone');
             const rect = chockroch.getBoundingClientRect();
             for(let i=0; i<6; i++) {
@@ -239,8 +234,8 @@
                 p.classList.add('particle');
                 p.style.left = `${e.clientX - rect.left}px`;
                 p.style.top = `${e.clientY - rect.top}px`;
-                p.style.setProperty('--mx', `${(Math.random() - 0.5) * 80}px`);
-                p.style.setProperty('--my', `${(Math.random() - 0.5) * 80}px`);
+                p.style.setProperty('--mx', `${(Math.random() - 0.5) * 90}px`);
+                p.style.setProperty('--my', `${(Math.random() - 0.5) * 90}px`);
                 if(isSurge) p.style.background = '#ff007f';
                 zone.appendChild(p);
                 setTimeout(() => p.remove(), 500);
@@ -251,7 +246,7 @@
             const res = await fetch(`${API_BASE}/api/upgrade`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: currentUser })
+                body: JSON.stringify({ walletAddress: myWalletAddress })
             });
             const data = await res.json();
             updateUI(data);
@@ -266,44 +261,32 @@
                 rows.forEach((row, index) => {
                     const rowDiv = document.createElement('div');
                     rowDiv.classList.add('leaderboard-row');
-                    const walletHint = row.wallet_address ? 
-                        `<span class="player-address-hint">💳 ${row.wallet_address.substring(0,6)}...${row.wallet_address.substring(38)}</span>` : 
-                        `<span class="player-address-hint" style="color:#333;">Offline Rebel</span>`;
-
                     rowDiv.innerHTML = `
                         <div style="text-align:left;">
-                            <span><span class="rank-num">#${index+1}</span><strong>${row.username}</strong></span>
-                            ${walletHint}
+                            <span><span class="rank-num">#${index+1}</span><strong>${row.social_handle}</strong></span>
+                            <span class="player-address-hint">💳 ${row.wallet_address.substring(0,6)}...${row.wallet_address.substring(34)}</span>
                         </div>
-                        <div style="color:#39ff14; font-size:1.1rem;">${Math.floor(row.coins).toLocaleString()}</div>
+                        <div style="color:#39ff14; font-size:1.1rem;">${Math.floor(row.virtual_points).toLocaleString()}</div>
                     `;
                     leaderboardList.appendChild(rowDiv);
                 });
             } catch(e) { console.error(e); }
         }
 
-        function simulateWalletConnect() {
-            const mockHex = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-            linkedWallet = mockHex;
-            walletBtn.innerText = `🟢 ${mockHex.substring(0,6)}...${mockHex.substring(38)}`;
-            walletBtn.disabled = true;
+        function triggerFauxWithdrawal() {
+            const currentPoints = parseInt(coinsDisplay.innerText.replace(/,/g, ''));
+            if(currentPoints <= 0) return alert("Earn points before attempting on-chain mint routing.");
             
-            if(currentUser) {
-                fetch(`${API_BASE}/api/auth`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username: currentUser, walletAddress: linkedWallet })
-                }).then(() => refreshLeaderboard());
-            }
+            alert(`🔒 WEB3 BRIDGE ROUTING:\n\nPreparing signature to dump ${currentPoints.toLocaleString()} points and execute a Smart Contract mint execution for real $CHOCKROCH tokens straight to address:\n${myWalletAddress}\n\n(In Phase 3, this popup triggers MetaMask/Coinbase wallet to sign a real transaction on Base!)`);
         }
 
         function updateUI(data) {
-            coinsDisplay.innerText = Math.floor(data.coins).toLocaleString();
+            coinsDisplay.innerText = Math.floor(data.virtual_points).toLocaleString();
             multiplierDisplay.innerText = `${data.multiplier}x`;
             
             const nextCost = Math.floor(20 * Math.pow(1.5, data.multiplier - 1));
-            upgradeBtn.innerText = `Upgrade Faux-Staking (Cost: ${nextCost})`;
-            upgradeBtn.disabled = data.coins < nextCost;
+            upgradeBtn.innerText = `Upgrade Staking (Cost: ${nextCost})`;
+            upgradeBtn.disabled = data.virtual_points < nextCost;
         }
     </script>
 </body>

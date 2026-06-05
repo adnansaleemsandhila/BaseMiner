@@ -11,133 +11,123 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize and setup the SQLite DB
+// Connect or generate persistent SQLite DB
 const db = new sqlite3.Database(DB_FILE, (err) => {
-    if (err) console.error("Database connection failure:", err);
-    else console.log("SQLite database linked successfully.");
+    if (err) console.error("DB Initialization Failure:", err);
+    else console.log("SQLite Engine Active & Persistent.");
 });
 
-// Create tables if they do not exist
+// Structural layout for the production ledger (Keyed by Wallet Address)
 db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS players (
-        username TEXT PRIMARY KEY,
-        wallet_address TEXT DEFAULT '',
-        coins REAL DEFAULT 0,
+    db.run(`CREATE TABLE IF NOT EXISTS rebels (
+        wallet_address TEXT PRIMARY KEY,
+        social_handle TEXT DEFAULT '',
+        virtual_points REAL DEFAULT 0,
         multiplier INTEGER DEFAULT 1,
-        last_save_time INTEGER DEFAULT 0
+        last_click_time INTEGER DEFAULT 0
     )`);
 });
 
-// ---------------- GAME DESIGN CONFIG ----------------
-const CONFIG = {
-    BASE_UPGRADE_COST: 20,
-    COST_MULTIPLIER: 1.5
-};
+// Memory cache to watch bot throttling speed spikes
+const rateLimiterCache = {};
 
 // ---------------- API ENDPOINTS ----------------
 
-// 1. Player Login/Auth Hook
+// 1. Web2.5 Identity Mapping (Triggered when user finishes Google/Social SSO)
 app.post('/api/auth', (req, res) => {
-    const { username, walletAddress } = req.body;
-    if (!username) return res.status(400).json({ error: "Username required" });
+    const { walletAddress, socialHandle } = req.body;
+    if (!walletAddress) return res.status(400).json({ error: "Cryptographic Address required." });
 
-    const wallet = walletAddress || '';
-    const now = Date.now();
+    const cleanWallet = walletAddress.toLowerCase();
+    const handle = socialHandle || 'Anonymous Rebel';
 
-    db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
+    db.get("SELECT * FROM rebels WHERE wallet_address = ?", [cleanWallet], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
 
         if (!row) {
-            // New Registration
-            db.run("INSERT INTO players (username, wallet_address, coins, multiplier, last_save_time) VALUES (?, ?, 0, 1, ?)",
-                [username, wallet, now], function(insertErr) {
-                    if (insertErr) return res.status(500).json({ error: insertErr.message });
-                    res.json({ username, wallet_address: wallet, coins: 0, multiplier: 1 });
+            // Fresh registration: Link their new embedded wallet to database state
+            db.run("INSERT INTO rebels (wallet_address, social_handle, virtual_points, multiplier, last_click_time) VALUES (?, ?, 0, 1, ?)",
+                [cleanWallet, handle, Date.now()], function(err) {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ wallet_address: cleanWallet, social_handle: handle, virtual_points: 0, multiplier: 1 });
                 });
         } else {
-            // Returning user: Optional placeholder update for future Web3 wallet linking
-            if (wallet && row.wallet_address !== wallet) {
-                db.run("UPDATE players SET wallet_address = ? WHERE username = ?", [wallet, username]);
-            }
             res.json(row);
         }
     });
 });
 
-// 2. Anti-Cheat Score Click Router
-// Keep a temporary memory log of click speeds (clears out constantly)
-const clickTrackers = {};
-
+// 2. Anti-Cheat Score Processor
 app.post('/api/click', (req, res) => {
-    const { username, surgeActive } = req.body;
+    const { walletAddress, surgeActive } = req.body;
+    if (!walletAddress) return res.status(400).json({ error: "Missing identity vector." });
+    
+    const cleanWallet = walletAddress.toLowerCase();
     const now = Date.now();
 
-    // ---------------- ANTI-CHEAT BOT SECURITY LAYER ----------------
-    if (!clickTrackers[username]) {
-        clickTrackers[username] = { lastClickTime: now, clickStrikes: 0 };
+    // ---- ADVANCED BOT THROTTLING ENGINE ----
+    if (!rateLimiterCache[cleanWallet]) {
+        rateLimiterCache[cleanWallet] = { lastClick: now, strikes: 0 };
     }
+    const msSinceLastClick = now - rateLimiterCache[cleanWallet].lastClick;
+    rateLimiterCache[cleanWallet].lastClick = now;
 
-    const timeSinceLastClick = now - clickTrackers[username].lastClickTime;
-    clickTrackers[username].lastClickTime = now;
-
-    // If time between clicks is less than 85 milliseconds, it's physically inhuman speed
-    if (timeSinceLastClick < 85) {
-        clickTrackers[username].clickStrikes++;
-        if (clickTrackers[username].clickStrikes > 5) {
-            return res.status(429).json({ error: "BOT DETECTED: Auto-clicker throttling active. Slow down, rebel!" });
+    if (msSinceLastClick < 85) { // Inhuman muscle speed threshold
+        rateLimiterCache[cleanWallet].strikes++;
+        if (rateLimiterCache[cleanWallet].strikes > 4) {
+            return res.status(429).json({ error: "🚨 BOT WARNING: Automated scripts detected. Anti-cheat cooldown active!" });
         }
     } else {
-        // Decay strikes slowly if they click normally
-        clickTrackers[username].clickStrikes = Math.max(0, clickTrackers[username].clickStrikes - 1);
+        rateLimiterCache[cleanWallet].strikes = Math.max(0, rateLimiterCache[cleanWallet].strikes - 1);
     }
-    // --------------------------------------------------------------
+    // ----------------------------------------
 
-    db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
-        if (err || !row) return res.status(404).json({ error: "Player profile not found" });
+    db.get("SELECT * FROM rebels WHERE wallet_address = ?", [cleanWallet], (err, row) => {
+        if (err || !row) return res.status(404).json({ error: "Rebel node profile missing." });
 
-        const baseReward = 1 * row.multiplier;
-        const reward = surgeActive ? (baseReward * 2) : baseReward;
-        
-        const newCoins = row.coins + reward;
+        const basePayout = 1 * row.multiplier;
+        const reward = surgeActive ? (basePayout * 2) : basePayout;
+        const totalPoints = row.virtual_points + reward;
 
-        db.run("UPDATE players SET coins = ?, last_save_time = ? WHERE username = ?", [newCoins, now, username], (updateErr) => {
-            if (updateErr) return res.status(500).json({ error: updateErr.message });
-            res.json({ username, coins: newCoins, multiplier: row.multiplier });
+        db.run("UPDATE rebels SET virtual_points = ?, last_click_time = ? WHERE wallet_address = ?", [totalPoints, now, cleanWallet], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ wallet_address: cleanWallet, virtual_points: totalPoints, multiplier: row.multiplier });
         });
     });
 });
 
-// 3. Process Multiplier Upgrade Shop Transaction
+// 3. Multiplier Level Shop Processor
 app.post('/api/upgrade', (req, res) => {
-    const { username } = req.body;
+    const { walletAddress } = req.body;
+    const cleanWallet = walletAddress.toLowerCase();
 
-    db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
-        if (err || !row) return res.status(404).json({ error: "Player profile not found" });
+    db.get("SELECT * FROM rebels WHERE wallet_address = ?", [cleanWallet], (err, row) => {
+        if (err || !row) return res.status(404).json({ error: "Profile missing." });
 
-        const cost = Math.floor(CONFIG.BASE_UPGRADE_COST * Math.pow(CONFIG.COST_MULTIPLIER, row.multiplier - 1));
+        const cost = Math.floor(20 * Math.pow(1.5, row.multiplier - 1));
 
-        if (row.coins >= cost) {
-            const newCoins = row.coins - cost;
-            const newMultiplier = row.multiplier + 1;
+        if (row.virtual_points >= cost) {
+            const nextPoints = row.virtual_points - cost;
+            const nextMult = row.multiplier + 1;
 
-            db.run("UPDATE players SET coins = ?, multiplier = ? WHERE username = ?", [newCoins, newMultiplier, username], (updateErr) => {
-                if (updateErr) return res.status(500).json({ error: updateErr.message });
-                res.json({ username, coins: newCoins, multiplier: newMultiplier });
+            db.run("UPDATE rebels SET virtual_points = ?, multiplier = ? WHERE wallet_address = ?", [nextPoints, nextMult, cleanWallet], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ wallet_address: cleanWallet, virtual_points: nextPoints, multiplier: nextMult });
             });
         } else {
-            res.status(400).json({ error: "Insufficient coin balance." });
+            res.status(400).json({ error: "Insufficient points." });
         }
     });
 });
 
-// 4. Live Global Leaderboard Endpoint
+// 4. Public Top 5 Leaderboard (Outputs partial address hashes for crypto aesthetic)
 app.get('/api/leaderboard', (req, res) => {
-    db.all("SELECT username, coins, wallet_address FROM players ORDER BY coins DESC LIMIT 5", [], (err, rows) => {
+    db.all("SELECT social_handle, wallet_address, virtual_points FROM rebels ORDER BY virtual_points DESC LIMIT 5", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`Database-backed engine deployed active on port ${PORT}`);
+    console.log(`Secured Identity Game Engine standing live on port ${PORT}`);
 });

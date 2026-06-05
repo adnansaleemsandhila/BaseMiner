@@ -14,10 +14,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Connect or generate persistent SQLite DB
 const db = new sqlite3.Database(DB_FILE, (err) => {
     if (err) console.error("DB Initialization Failure:", err);
-    else console.log("SQLite Engine Active & Persistent.");
+    else console.log("SQLite Engine Active & Tracking Cockroach Records.");
 });
 
-// Structural layout for the production ledger (Keyed by Wallet Address)
+// Structural layout for the production ledger (Keyed by Real Wallet Address)
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS rebels (
         wallet_address TEXT PRIMARY KEY,
@@ -33,7 +33,7 @@ const rateLimiterCache = {};
 
 // ---------------- API ENDPOINTS ----------------
 
-// 1. Web2.5 Identity Mapping (Triggered when user finishes Google/Social SSO)
+// 1. Identity Mapping (Triggered when user finishes Real or Mock Social SSO)
 app.post('/api/auth', (req, res) => {
     const { walletAddress, socialHandle } = req.body;
     if (!walletAddress) return res.status(400).json({ error: "Cryptographic Address required." });
@@ -45,7 +45,7 @@ app.post('/api/auth', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
 
         if (!row) {
-            // Fresh registration: Link their new embedded wallet to database state
+            // Fresh registration: Link their wallet to database state
             db.run("INSERT INTO rebels (wallet_address, social_handle, virtual_points, multiplier, last_click_time) VALUES (?, ?, 0, 1, ?)",
                 [cleanWallet, handle, Date.now()], function(err) {
                     if (err) return res.status(500).json({ error: err.message });
@@ -72,10 +72,10 @@ app.post('/api/click', (req, res) => {
     const msSinceLastClick = now - rateLimiterCache[cleanWallet].lastClick;
     rateLimiterCache[cleanWallet].lastClick = now;
 
-    if (msSinceLastClick < 85) { // Inhuman muscle speed threshold
+    if (msSinceLastClick < 85) { 
         rateLimiterCache[cleanWallet].strikes++;
         if (rateLimiterCache[cleanWallet].strikes > 4) {
-            return res.status(429).json({ error: "🚨 BOT WARNING: Automated scripts detected. Anti-cheat cooldown active!" });
+            return res.status(429).json({ error: "🚨 BOT WARNING: Auto-clicker detected! Anti-cheat lockdown active." });
         }
     } else {
         rateLimiterCache[cleanWallet].strikes = Math.max(0, rateLimiterCache[cleanWallet].strikes - 1);
@@ -120,7 +120,7 @@ app.post('/api/upgrade', (req, res) => {
     });
 });
 
-// 4. Public Top 5 Leaderboard (Outputs partial address hashes for crypto aesthetic)
+// 4. Public Top 5 Leaderboard
 app.get('/api/leaderboard', (req, res) => {
     db.all("SELECT social_handle, wallet_address, virtual_points FROM rebels ORDER BY virtual_points DESC LIMIT 5", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -129,5 +129,5 @@ app.get('/api/leaderboard', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Secured Identity Game Engine standing live on port ${PORT}`);
+    console.log(`Secured Cockroach Engine standing live on port ${PORT}`);
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 CHOCKROCH MOVEMENT HUB 🚀</title>
+    <title>🚀 COCKROACH RESISTANCE: Meme Launchpad 🚀</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Impact', 'Arial Black', sans-serif; user-select: none; }
         body { background: radial-gradient(circle, #3a0066 0%, #050010 100%); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
@@ -23,8 +23,8 @@
         .tile-value { font-size: 1.2rem; color: #39ff14; margin-top: 2px; }
 
         .character-zone { margin: 20px 0; display: flex; justify-content: center; position: relative; }
-        .chockroch-svg { width: 165px; height: 165px; filter: drop-shadow(0 0 15px #39ff14); cursor: pointer; transition: transform 0.05s ease; }
-        .chockroch-svg:active { transform: scale(0.88) rotate(3deg); }
+        .cockroach-svg { width: 165px; height: 165px; filter: drop-shadow(0 0 15px #39ff14); cursor: pointer; transition: transform 0.05s ease; }
+        .cockroach-svg:active { transform: scale(0.88) rotate(3deg); }
         .surge-active { filter: drop-shadow(0 0 25px #ff007f) brightness(1.3) !important; animation: shake 0.1s infinite; }
 
         .blast-text { position: absolute; font-size: 1.5rem; color: #ffff00; pointer-events: none; -webkit-text-stroke: 1px #000; animation: blast 0.6s ease-out forwards; z-index: 10; }
@@ -35,7 +35,7 @@
         .meme-btn { width: 100%; border: 3px solid #000; padding: 12px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; background: #39ff14; box-shadow: 0 5px 0 #1e820a; margin-top: 8px; color: #000; }
         .meme-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #1e820a; }
         .meme-btn:disabled { background: #444; color: #777; cursor: not-allowed; box-shadow: none; transform: none; border-color: #222; }
-        .btn-withdraw { background: #ff007f; box-gradient: none; color: white; box-shadow: 0 5px 0 #9e004f; font-size: 0.95rem; padding: 10px; }
+        .btn-withdraw { background: #ff007f; box-shadow: 0 5px 0 #9e004f; color: white; font-size: 0.95rem; padding: 10px; }
         .btn-withdraw:active { box-shadow: 0 1px 0 #9e004f; }
 
         .leaderboard-list { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
@@ -46,20 +46,18 @@
         .surge-banner { display: none; background: #ff007f; color: white; padding: 5px; font-size: 0.8rem; border-radius: 5px; margin-bottom: 10px; animation: flash 0.5s infinite alternate; }
         @keyframes flash { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        /* SSO Gate Screen Styling */
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #04010a; display: flex; align-items: center; justify-content: center; z-index: 100; }
         .auth-box { background: #0f071a; padding: 35px; border-radius: 30px; text-align: center; width: 90%; max-width: 360px; border: 3px solid #39ff14; box-shadow: 0 0 25px #39ff14; }
         .sso-btn { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #fff; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s; }
         .sso-google { background: #fff; color: #000; }
         .sso-x { background: #000; color: #fff; border-color: #333; }
-        .sso-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
 
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-box">
-            <h2 style="color: #39ff14; font-size: 1.5rem; border-none; margin-bottom: 5px; text-shadow: none;">CHOCKROCH LOGIN</h2>
+            <h2 style="color: #39ff14; font-size: 1.5rem; border-none; margin-bottom: 5px; text-shadow: none;">COCKROACH LOGIN</h2>
             <div style="font-family: 'Arial'; font-size: 0.8rem; color: #888; margin-bottom: 20px;">Secured via Embedded Web3 Auth</div>
             
             <input type="text" id="customHandleInput" style="width:100%; padding:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; text-align:center; margin-bottom:10px;" placeholder="Create Rebel Handle (e.g. Ali_CJP)">
@@ -77,7 +75,7 @@
         <div class="meme-container">
             <div class="surge-banner" id="surgeBanner">🔥 SYSTEM SURGE ACTIVE! 2X SCORES 🔥</div>
             <h1 id="playerDisplay">Rebel Node</h1>
-            <div class="ticker-name">$CHOCKROCH</div>
+            <div class="ticker-name">$COCKROACH</div>
             <br>
             <div class="wallet-badge" id="walletBadgeDisplay">Loading Secure Ledger Address...</div>
 
@@ -93,7 +91,7 @@
             </div>
 
             <div class="character-zone" id="particleZone">
-                <svg class="chockroch-svg" id="chockrochAsset" viewBox="0 0 100 100" onclick="mineChockroch(event)">
+                <svg class="cockroach-svg" id="cockroachAsset" viewBox="0 0 100 100" onclick="mineCockroach(event)">
                     <path d="M50,35 Q40,10 25,5" fill="none" stroke="#39ff14" stroke-width="2"/>
                     <path d="M50,35 Q60,10 75,5" fill="none" stroke="#39ff14" stroke-width="2"/>
                     <path d="M35,50 L15,45 M35,60 L12,60 M35,70 L15,80" stroke="#39ff14" stroke-width="2.5"/>
@@ -109,7 +107,7 @@
                 Staking Upgrade (Cost: 20)
             </button>
             <button class="meme-btn btn-withdraw" onclick="triggerFauxWithdrawal()">
-                ⚡ Claim On-Chain $CHOCKROCH Tokens
+                ⚡ Claim On-Chain $COCKROACH Tokens
             </button>
         </div>
 
@@ -150,7 +148,7 @@
         const upgradeBtn = document.getElementById('upgradeBtn');
         const leaderboardList = document.getElementById('leaderboardList');
         const walletBadgeDisplay = document.getElementById('walletBadgeDisplay');
-        const chockroch = document.getElementById('chockrochAsset');
+        const cockroach = document.getElementById('cockroachAsset');
         const surgeBanner = document.getElementById('surgeBanner');
 
         const phrases = ["BOOM!", "CJP!", "RESIST!", "HODL!", "BASE L2!", "PUMP!", "ROACH!"];
@@ -159,7 +157,7 @@
             const typedHandle = document.getElementById('customHandleInput').value.trim();
             mySocialHandle = typedHandle ? typedHandle : `User_${Math.floor(Math.random()*9000)}`;
             
-            // Generate a real cryptographic hex-string simulating an embedded Privy wallet creation
+            // Simulates embedded Privy wallet generation string
             myWalletAddress = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
             
             walletBadgeDisplay.innerText = `💳 Wallet: ${myWalletAddress.substring(0,6)}...${myWalletAddress.substring(36)}`;
@@ -178,7 +176,7 @@
             setInterval(refreshLeaderboard, 3000);
         }
 
-        async function mineChockroch(e) {
+        async function mineCockroach(e) {
             if(!myWalletAddress) return;
             clickCount++;
 
@@ -186,12 +184,12 @@
                 if(Math.random() > 0.4) {
                     isSurge = true;
                     clickCount = 0;
-                    chockroch.classList.add('surge-active');
+                    cockroach.classList.add('surge-active');
                     surgeBanner.style.display = 'block';
                     playSynthLaser(3);
                     setTimeout(() => {
                         isSurge = false;
-                        chockroch.classList.remove('surge-active');
+                        cockroach.classList.remove('surge-active');
                         surgeBanner.style.display = 'none';
                     }, 10000);
                 }
@@ -205,9 +203,9 @@
             pop.innerText = isSurge ? "⚡️ SURGE ⚡️" : phrases[Math.floor(Math.random() * phrases.length)];
             pop.style.setProperty('--x', `${(Math.random() - 0.5) * 160}px`);
             pop.style.setProperty('--y', `${-(Math.random() * 100 + 40)}px`);
-            pop.style.left = `${e.clientX - chockroch.getBoundingClientRect().left}px`;
-            pop.style.top = `${e.clientY - chockroch.getBoundingClientRect().top}px`;
-            chockroch.parentElement.appendChild(pop);
+            pop.style.left = `${e.clientX - cockroach.getBoundingClientRect().left}px`;
+            pop.style.top = `${e.clientY - cockroach.getBoundingClientRect().top}px`;
+            cockroach.parentElement.appendChild(pop);
             setTimeout(() => pop.remove(), 600);
 
             const res = await fetch(`${API_BASE}/api/click`, {
@@ -228,7 +226,7 @@
 
         function spawnClickParticles(e) {
             const zone = document.getElementById('particleZone');
-            const rect = chockroch.getBoundingClientRect();
+            const rect = cockroach.getBoundingClientRect();
             for(let i=0; i<6; i++) {
                 const p = document.createElement('div');
                 p.classList.add('particle');
@@ -277,7 +275,7 @@
             const currentPoints = parseInt(coinsDisplay.innerText.replace(/,/g, ''));
             if(currentPoints <= 0) return alert("Earn points before attempting on-chain mint routing.");
             
-            alert(`🔒 WEB3 BRIDGE ROUTING:\n\nPreparing signature to dump ${currentPoints.toLocaleString()} points and execute a Smart Contract mint execution for real $CHOCKROCH tokens straight to address:\n${myWalletAddress}\n\n(In Phase 3, this popup triggers MetaMask/Coinbase wallet to sign a real transaction on Base!)`);
+            alert(`🔒 WEB3 BRIDGE ROUTING:\n\nPreparing signature to dump ${currentPoints.toLocaleString()} points and execute a Smart Contract mint execution for real $COCKROACH tokens straight to address:\n${myWalletAddress}\n\n(In Phase 3, this popup triggers Privy to sign a real transaction on Base!)`);
         }
 
         function updateUI(data) {

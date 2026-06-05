@@ -65,18 +65,40 @@ app.post('/api/auth', (req, res) => {
 });
 
 // 2. Anti-Cheat Score Click Router
+// Keep a temporary memory log of click speeds (clears out constantly)
+const clickTrackers = {};
+
 app.post('/api/click', (req, res) => {
     const { username, surgeActive } = req.body;
-    
+    const now = Date.now();
+
+    // ---------------- ANTI-CHEAT BOT SECURITY LAYER ----------------
+    if (!clickTrackers[username]) {
+        clickTrackers[username] = { lastClickTime: now, clickStrikes: 0 };
+    }
+
+    const timeSinceLastClick = now - clickTrackers[username].lastClickTime;
+    clickTrackers[username].lastClickTime = now;
+
+    // If time between clicks is less than 85 milliseconds, it's physically inhuman speed
+    if (timeSinceLastClick < 85) {
+        clickTrackers[username].clickStrikes++;
+        if (clickTrackers[username].clickStrikes > 5) {
+            return res.status(429).json({ error: "BOT DETECTED: Auto-clicker throttling active. Slow down, rebel!" });
+        }
+    } else {
+        // Decay strikes slowly if they click normally
+        clickTrackers[username].clickStrikes = Math.max(0, clickTrackers[username].clickStrikes - 1);
+    }
+    // --------------------------------------------------------------
+
     db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
         if (err || !row) return res.status(404).json({ error: "Player profile not found" });
 
-        // If the client side verified a system surge event, double the payout curve
         const baseReward = 1 * row.multiplier;
         const reward = surgeActive ? (baseReward * 2) : baseReward;
         
         const newCoins = row.coins + reward;
-        const now = Date.now();
 
         db.run("UPDATE players SET coins = ?, last_save_time = ? WHERE username = ?", [newCoins, now, username], (updateErr) => {
             if (updateErr) return res.status(500).json({ error: updateErr.message });

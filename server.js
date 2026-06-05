@@ -1,124 +1,118 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'database.json');
+const DB_FILE = path.join(__dirname, 'game.db');
 
 app.use(cors());
 app.use(express.json());
-// Serve the static frontend files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Fallback database load function
-function loadDatabase() {
-    try {
-        if (!fs.existsSync(DB_FILE)) {
-            fs.writeFileSync(DB_FILE, JSON.stringify({}));
-        }
-        const data = fs.readFileSync(DB_FILE, 'utf8');
-        return JSON.parse(data || '{}');
-    } catch (err) {
-        console.error("Database reading error:", err);
-        return {};
-    }
-}
+// Initialize and setup the SQLite DB
+const db = new sqlite3.Database(DB_FILE, (err) => {
+    if (err) console.error("Database connection failure:", err);
+    else console.log("SQLite database linked successfully.");
+});
 
-// Database saving function
-function saveDatabase(data) {
-    try {
-        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
-    } catch (err) {
-        console.error("Database saving error:", err);
-    }
-}
+// Create tables if they do not exist
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS players (
+        username TEXT PRIMARY KEY,
+        wallet_address TEXT DEFAULT '',
+        coins REAL DEFAULT 0,
+        multiplier INTEGER DEFAULT 1,
+        last_save_time INTEGER DEFAULT 0
+    )`);
+});
 
-// ---------------- GAME BALANCE CONFIGURATION ----------------
+// ---------------- GAME DESIGN CONFIG ----------------
 const CONFIG = {
-    CLICK_VALUE: 1,
-    AUTO_MINER_BASE_COST: 15,
-    AUTO_MINER_EFFICIENCY: 1, // Gold per second per miner
-    COST_MULTIPLIER: 1.15     // Exponential pricing curves
+    BASE_UPGRADE_COST: 20,
+    COST_MULTIPLIER: 1.5
 };
 
 // ---------------- API ENDPOINTS ----------------
 
-// 1. Authenticate or Register Player
-app.post('/api/auth', (req, pathResponse) => {
-    const { username } = req.body;
-    if (!username) return pathResponse.status(400).json({ error: "Username required" });
+// 1. Player Login/Auth Hook
+app.post('/api/auth', (req, res) => {
+    const { username, walletAddress } = req.body;
+    if (!username) return res.status(400).json({ error: "Username required" });
 
-    const db = loadDatabase();
-    
-    // If user doesn't exist, build a pristine account profile
-    if (!db[username]) {
-        db[username] = {
-            username: username,
-            gold: 0,
-            autoMiners: 0,
-            lastSaveTime: Date.now()
-        };
-        saveDatabase(db);
-    } else {
-        // Run passive idle progression logic on login hook
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - db[username].lastSaveTime) / 1000);
-        if (elapsedSeconds > 0 && db[username].autoMiners > 0) {
-            const dynamicEarnings = elapsedSeconds * db[username].autoMiners * CONFIG.AUTO_MINER_EFFICIENCY;
-            db[username].gold += dynamicEarnings;
-        }
-        db[username].lastSaveTime = now;
-        saveDatabase(db);
-    }
-
-    pathResponse.json(db[username]);
-});
-
-// 2. Verified Click Endpoint (Anti-Cheat Server-Side Math Verification)
-app.post('/api/click', (req, pathResponse) => {
-    const { username } = req.body;
-    const db = loadDatabase();
-
-    if (!db[username]) return pathResponse.status(404).json({ error: "User profile missing" });
-
-    // Process idle income generation since last update timestamp
+    const wallet = walletAddress || '';
     const now = Date.now();
-    const elapsedSeconds = Math.floor((now - db[username].lastSaveTime) / 1000);
-    const passiveGold = elapsedSeconds > 0 ? elapsedSeconds * db[username].autoMiners * CONFIG.AUTO_MINER_EFFICIENCY : 0;
 
-    // Apply the math explicitly on backend hardware
-    db[username].gold += CONFIG.CLICK_VALUE + passiveGold;
-    db[username].lastSaveTime = now;
-    
-    saveDatabase(db);
-    pathResponse.json(db[username]);
+    db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        if (!row) {
+            // New Registration
+            db.run("INSERT INTO players (username, wallet_address, coins, multiplier, last_save_time) VALUES (?, ?, 0, 1, ?)",
+                [username, wallet, now], function(insertErr) {
+                    if (insertErr) return res.status(500).json({ error: insertErr.message });
+                    res.json({ username, wallet_address: wallet, coins: 0, multiplier: 1 });
+                });
+        } else {
+            // Returning user: Optional placeholder update for future Web3 wallet linking
+            if (wallet && row.wallet_address !== wallet) {
+                db.run("UPDATE players SET wallet_address = ? WHERE username = ?", [wallet, username]);
+            }
+            res.json(row);
+        }
+    });
 });
 
-// 3. Verified Upgrade Purchase
-app.post('/api/upgrade', (req, pathResponse) => {
+// 2. Anti-Cheat Score Click Router
+app.post('/api/click', (req, res) => {
     const { username } = req.body;
-    const db = loadDatabase();
+    
+    db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
+        if (err || !row) return res.status(404).json({ error: "Player profile not found" });
 
-    if (!db[username]) return pathResponse.status(404).json({ error: "User profile missing" });
+        const reward = 1 * row.multiplier;
+        const newCoins = row.coins + reward;
+        const now = Date.now();
 
-    // Deduce item cost mathematically using an exponential curve
-    const currentMiners = db[username].autoMiners;
-    const upgradeCost = Math.floor(CONFIG.AUTO_MINER_BASE_COST * Math.pow(CONFIG.COST_MULTIPLIER, currentMiners));
+        db.run("UPDATE players SET coins = ?, last_save_time = ? WHERE username = ?", [newCoins, now, username], (updateErr) => {
+            if (updateErr) return res.status(500).json({ error: updateErr.message });
+            res.json({ username, coins: newCoins, multiplier: row.multiplier });
+        });
+    });
+});
 
-    // Validate financial solvency before processing ledger
-    if (db[username].gold >= upgradeCost) {
-        db[username].gold -= upgradeCost;
-        db[username].autoMiners += 1;
-        db[username].lastSaveTime = Date.now();
-        saveDatabase(db);
-        pathResponse.json(db[username]);
-    } else {
-        pathResponse.status(400).json({ error: "Insufficient Gold balance for this transaction." });
-    }
+// 3. Process Multiplier Upgrade Shop Transaction
+app.post('/api/upgrade', (req, res) => {
+    const { username } = req.body;
+
+    db.get("SELECT * FROM players WHERE username = ?", [username], (err, row) => {
+        if (err || !row) return res.status(404).json({ error: "Player profile not found" });
+
+        const cost = Math.floor(CONFIG.BASE_UPGRADE_COST * Math.pow(CONFIG.COST_MULTIPLIER, row.multiplier - 1));
+
+        if (row.coins >= cost) {
+            const newCoins = row.coins - cost;
+            const newMultiplier = row.multiplier + 1;
+
+            db.run("UPDATE players SET coins = ?, multiplier = ? WHERE username = ?", [newCoins, newMultiplier, username], (updateErr) => {
+                if (updateErr) return res.status(500).json({ error: updateErr.message });
+                res.json({ username, coins: newCoins, multiplier: newMultiplier });
+            });
+        } else {
+            res.status(400).json({ error: "Insufficient coin balance." });
+        }
+    });
+});
+
+// 4. Live Global Leaderboard Endpoint
+app.get('/api/leaderboard', (req, res) => {
+    db.all("SELECT username, coins, wallet_address FROM players ORDER BY coins DESC LIMIT 5", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
 
 app.listen(PORT, () => {
-    console.log(`Secured clicker engine running live on port ${PORT}`);
+    console.log(`Database-backed engine deployed active on port ${PORT}`);
 });

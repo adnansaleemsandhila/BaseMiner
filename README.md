@@ -1,6 +1,12 @@
 # BaseMiner — "Cockroach Resistance: Meme Launchpad"
 
-A lightweight, headerless **tap-to-earn meme game built for the Base network** (Ethereum L2).
+> **Early standalone demo.** BaseMiner's tap economy now lives inside
+> **[LingoForge](https://github.com/adnansaleemsandhila/lingoforge)** — the evolved,
+> server-authoritative successor that reuses this game's wallet → points → multiplier →
+> Base ERC-20 claim model and 85ms anti-autoclick guard. This repo is kept public as a
+> historical artifact and is no longer developed.
+
+A lightweight, browser-based **tap-to-earn meme game built for the Base network** (Ethereum L2).
 Players "mine" virtual points by tapping a glowing cockroach, upgrade a mining multiplier, and
 compete on a live top-5 leaderboard. Points are intended to be claimed as the **$COCKROACH**
 token on Base (claim is a stub — see *Not yet real* below).
@@ -10,9 +16,6 @@ token on Base (claim is a stub — see *Not yet real* below).
 - **Login screen:** "COCKROACH LOGIN"
 - **Leaderboard:** "Top 5 Rebels"
 - **Repo:** https://github.com/adnansaleemsandhila/BaseMiner (public)
-
-This repo is the ancestor of **LingoForge** — the 85ms anti-autoclick guard and the
-`points × multiplier` upgrade economy here were carried into LingoForge's mining rig.
 
 ## Stack
 
